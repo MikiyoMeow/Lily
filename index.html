@@ -4,111 +4,238 @@
     <meta charset="UTF-8">
     <title>莉莉的个猫主页 🐾</title>
     <style>
-        /* 1. 整体背景：温馨的猫咪粉色渐变 */
+        /* ======================== 
+           1. 基础布局与配色 (CSS)
+           ======================== */
         body { 
             font-family: 'Segoe UI', 'PingFang SC', sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; 
             background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); 
             color: #4a4a4a;
+            padding: 20px;
         }
 
-        /* 2. 角色卡片容器 */
+        /* 统一卡片样式 */
         .card { 
-            background: white; 
-            width: 350px; 
-            padding: 2.5rem; 
-            border-radius: 30px; 
-            box-shadow: 0 15px 35px rgba(255, 182, 193, 0.4); 
-            text-align: center;
-            border: 2px solid #ffb6c1;
+            background: white; width: 400px; padding: 2rem; 
+            border-radius: 30px; box-shadow: 0 15px 35px rgba(255, 182, 193, 0.4); 
+            text-align: center; border: 2px solid #ffb6c1;
         }
 
-        /* 3. 头像样式 */
-        .LilySleeping { 
-            width: 120px; 
-            height: 120px; 
-            border-radius: 50%; 
-            border: 5px solid #ffb6c1; 
-            object-fit: cover; 
-            margin-bottom: 1rem;
-        }
-
-        h1 { font-size: 1.8rem; color: #ff6b81; margin: 0.5rem 0; }
-        .tag { background: #ffb6c1; color: white; padding: 3px 12px; border-radius: 15px; font-size: 0.8rem; }
-
-        /* 4. 技能列表区域 */
-        .stats-container { text-align: left; margin-top: 2rem; }
+        /* 头像与状态 */
+        .avatar-container { position: relative; display: inline-block; margin-bottom: 10px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 5px solid #ffb6c1; object-fit: cover; transition: all 0.5s ease; }
         
-        .stat-item { margin-bottom: 1.2rem; }
+        /* 睡觉时的滤镜效果 */
+        .sleeping { filter: grayscale(0.6) opacity(0.7); transform: scale(0.95) rotate(5deg); }
+        .zzz { position: absolute; top: 0; right: 0; font-size: 1.5rem; color: #ff6b81; display: none; }
+        .sleeping + .zzz { display: block; animation: zzz-fade 1.5s infinite; }
+
+        @keyframes zzz-fade { 0%, 100% { opacity: 0; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-10px); } }
+
+        /* 分割线样式 */
+        .divider { border: 0; height: 1px; background: #ffe3e3; margin: 25px 0; position: relative; }
+        .divider::after { content: "🐾"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 10px; color: #ffb6c1; }
+
+        h2 { font-size: 1.2rem; color: #ff6b81; margin: 0 0 15px 0; text-align: left; }
+
+        /* ======================== 
+           2. 养成状态条 (实时变化)
+           ======================== */
+        .live-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; text-align: left; }
+        .stat-item { background: #fffafb; padding: 8px; border-radius: 10px; border: 1px solid #fff0f2; }
+        .stat-bar-bg { background: #eee; height: 8px; border-radius: 4px; margin-top: 5px; overflow: hidden; position: relative;}
+        .stat-bar-fill { height: 100%; transition: width 0.5s ease-out; border-radius: 4px; }
         
-        .stat-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        /* 不同状态条的颜色 */
+        #bar-mood { background: linear-gradient(90deg, #ff9a9e, #ff6b81); }   /* 心情：粉色渐变 */
+        #bar-hunger { background: linear-gradient(90deg, #f6d365, #fda085); } /* 饥饿：橙色渐变 */
+        #bar-energy { background: linear-gradient(90deg, #84fab0, #8fd3f4); } /* 体力：蓝色渐变 */
+        #bar-clean { background: linear-gradient(90deg, #a1c4fd, #c2e9fb); }  /* 清洁：淡蓝渐变 */
 
-        /* 5. 进度条外框 */
-        .bar-bg { 
-            background: #eee; 
-            height: 10px; 
-            border-radius: 5px; 
-            overflow: hidden; /* 确保内部条不会超出圆角 */
-        }
+        /* 消息提示区 */
+        #message { height: 25px; color: #ff6b81; font-weight: bold; font-size: 0.95rem; margin-bottom: 15px; }
 
-        /* 6. 进度条内部（填充色） */
-        .bar-fill { 
-            height: 100%; 
-            background: linear-gradient(90deg, #ff9a9e 0%, #ff6b81 100%); 
-            border-radius: 5px;
-            transition: width 1s ease-in-out; /* 增加一点加载动画效果 */
+        /* 互动按钮 */
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        button { 
+            padding: 12px; border: none; border-radius: 15px; 
+            background: #ffb6c1; color: white; cursor: pointer; 
+            font-weight: bold; transition: all 0.2s; font-size: 0.9rem;
         }
+        button:hover:not(:disabled) { background: #ff6b81; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255,107,129,0.3); }
+        button:disabled { background: #ddd; cursor: not-allowed; opacity: 0.7; }
+        #sleep-btn { background: #a1c4fd; } /* 睡觉按钮特殊颜色 */
+        #sleep-btn:hover:not(:disabled) { background: #4a90e2; }
+
+        /* ======================== 
+           3. RPG 核心战力面板 (固定属性)
+           ======================== */
+        .rpg-stats { text-align: left; margin-top: 10px; }
+        .rpg-item { margin-bottom: 12px; }
+        .rpg-info { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; color: #5d5d5d; }
+        .rpg-bar-bg { background: #eee; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #e0e0e0; }
+        .rpg-bar-fill { height: 100%; background: linear-gradient(90deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 5px; }
+
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <img src="LilySleeping.png" alt="LilySleeping" class="LilySleeping">
-        
-        <div><span class="tag">LV.3 特级拆家大師</span></div>
-        <h1>莉莉 (Lily) 🐾</h1>
-        
-        <div class="stats-container">
-            <div class="stat-item">
-                <div class="stat-info"><span>✨ 卖萌术</span><span>100%</span></div>
-                <div class="bar-bg"><div class="bar-fill" style="width: 100%;"></div></div>
-            </div>
-
-            <div class="stat-item">
-                <div class="stat-info"><span>🦜 和乌鸦吵架</span><span>40%</span></div>
-                <div class="bar-bg"><div class="bar-fill" style="width: 40%;"></div></div>
-            </div>
-
-            <div class="stat-item">
-                <div class="stat-info"><span>🏃 凌晨跑酷</span><span>85%</span></div>
-                <div class="bar-bg"><div class="bar-fill" style="width: 85%;"></div></div>
-            </div>
-
-            <div class="stat-item">
-                <div class="stat-info"><span>🧠 听懂人话</span><span>60%</span></div>
-                <div class="bar-bg"><div class="bar-fill" style="width: 60%;"></div></div>
-            </div>
-
-            <div class="stat-item">
-                <div class="stat-info"><span>🍗 冻干乞讨术</span><span>90%</span></div>
-                <div class="bar-bg"><div class="bar-fill" style="width: 90%;"></div></div>
-            </div>
-
-            <div class="stat-item">
-                <div class="stat-info"><span>🤱🏻 被人抱</span><span>0%</span></div>
-                <div class="bar-bg"><div class="bar-fill" style="width: 0%;"></div></div>
-            </div>
-
-
-            
-        </div>
-        
-        <p style="font-size: 0.8rem; color: #999; margin-top: 20px;">* 以上属性随罐头摄入量动态变化</p>
+<div class="card">
+    <div class="avatar-container">
+        <img src="avatar.jpg" alt="小猫莉莉" class="avatar" id="lily-img">
+        <div class="zzz">Zzz...</div>
     </div>
+    <div id="status-tag"><span style="background:#ffb6c1; color:white; padding:3px 12px; border-radius:15px; font-size:0.8rem;">LV.3 特级拆家大師</span></div>
+    <h1 style="font-size: 1.8rem; margin: 10px 0 20px 0; color: #ff6b81;">莉莉 (Lily) 🐾</h1>
+
+    <h2>📊 实时状态 (Live)</h2>
+    <div class="live-stats">
+        <div class="stat-item"><small>❤️ 心情值</small><div class="stat-bar-bg"><div id="bar-mood" class="stat-bar-fill" style="width: 80%;"></div></div></div>
+        <div class="stat-item"><small>🍗 饥饿值</small><div class="stat-bar-bg"><div id="bar-hunger" class="stat-bar-fill" style="width: 50%;"></div></div></div>
+        <div class="stat-item"><small>⚡ 体力值</small><div class="stat-bar-bg"><div id="bar-energy" class="stat-bar-fill" style="width: 100%;"></div></div></div>
+        <div class="stat-item"><small>✨ 清洁值</small><div class="stat-bar-bg"><div id="bar-clean" class="stat-bar-fill" style="width: 90%;"></div></div></div>
+    </div>
+
+    <div id="message">莉莉正在等你陪她玩呢！喵~</div>
+
+    <div class="actions">
+        <button onclick="interact('feed')" id="feed-btn">🥫 喂罐头</button>
+        <button onclick="interact('brush')" id="brush-btn">🪮 刷刷毛</button>
+        <button onclick="interact('play')" id="play-btn">🧶 玩玩具</button>
+        <button onclick="interact('sleep')" id="sleep-btn">😴 去睡觉</button>
+    </div>
+
+    <hr class="divider">
+
+    <h2>⚔️ 核心属性 (Core)</h2>
+    <div class="rpg-stats">
+        <div class="rpg-item">
+            <div class="rpg-info"><span>✨ 卖萌术</span><span>100% (满分！)</span></div>
+            <div class="rpg-bar-bg"><div class="rpg-bar-fill" style="width: 100%;"></div></div>
+        </div>
+        <div class="rpg-item">
+            <div class="rpg-info"><span>🪰 捕捉苍蝇</span><span>20% (随缘)</span></div>
+            <div class="rpg-bar-bg"><div class="rpg-bar-fill" style="width: 20%;"></div></div>
+        </div>
+        <div class="rpg-item">
+            <div class="rpg-info"><span>🏃 凌晨跑酷</span><span>85% (专业级)</span></div>
+            <div class="rpg-bar-bg"><div class="rpg-bar-fill" style="width: 85%;"></div></div>
+        </div>
+        <div class="rpg-item">
+            <div class="rpg-info"><span>🧠 听懂人话</span><span>0% (全看心情)</span></div>
+            <div class="rpg-bar-bg"><div class="rpg-bar-fill" style="width: 0%;"></div></div>
+        </div>
+    </div>
+    
+    <p style="font-size: 0.8rem; color: #aaa; margin-top: 25px;">* 核心属性随罐头摄入量动态变化</p>
+</div>
+
+<script>
+    // 初始养成数据
+    let stats = { mood: 80, hunger: 50, clean: 90, energy: 100 };
+    let isSleeping = false;
+
+    // 状态更新 UI 界面
+    function updateUI() {
+        document.getElementById('bar-mood').style.width = stats.mood + '%';
+        document.getElementById('bar-hunger').style.width = stats.hunger + '%';
+        document.getElementById('bar-energy').style.width = stats.energy + '%';
+        document.getElementById('bar-clean').style.width = stats.clean + '%';
+
+        // 检查体力是否耗尽
+        if (stats.energy <= 0 && !isSleeping) {
+            // 自动进入睡觉状态
+            startSleeping("莉莉体力耗尽，不得不去睡觉了...");
+        }
+
+        // 按钮禁用状态控制（睡觉时不能喂、刷、玩）
+        const actionBtns = ['feed-btn', 'brush-btn', 'play-btn'];
+        actionBtns.forEach(id => document.getElementById(id).disabled = isSleeping);
+    }
+
+    // 互动处理函数
+    function interact(type) {// ======================== 
+    // 互动处理函数 (修改了图片切换逻辑)
+    // ======================== 
+    function interact(type) {
+        const msg = document.getElementById('message');
+        const img = document.getElementById('lily-img'); // 找到头像图片元素
+        
+        if (isSleeping && type !== 'sleep') return; // 如果在睡觉且不是点的睡觉按钮，则不响应
+
+        // 清除图片可能存在的临时动画样式
+        img.style.transform = ''; 
+
+        if (type === 'feed') {
+            stats.mood = Math.min(100, stats.mood + 10);
+            stats.hunger = Math.min(100, stats.hunger + 30); // 喂罐头，心情和饥饿增加
+            msg.innerText = "莉莉吃得满脸都是罐头渍，喵~";
+            img.style.transform = 'scale(1.1)'; // 吃东西时的Q弹动画
+        } else if (type === 'brush') {
+            stats.mood = Math.min(100, stats.mood + 15);
+            stats.clean = Math.min(100, stats.clean + 20); // 刷毛，心情和清洁增加
+            msg.innerText = "呼噜呼噜...刷毛真舒服，毛发蓬松！";
+        } else if (type === 'play') {
+            if (stats.energy >= 25) {
+                stats.energy -= 25; // 玩玩具，体力减少
+                stats.mood = Math.min(100, stats.mood + 20); // 心情增加
+                msg.innerText = "莉莉疯狂捕捉毛线球，展示猫科魅力！";
+                img.style.transform = 'rotate(-10deg)'; // 玩耍时的动态
+            } else {
+                msg.innerText = "莉莉太累了，完全玩不动了。";
+            }
+        } else if (type === 'sleep') {
+            if (!isSleeping) {
+                // 进入睡觉状态
+                startSleeping("莉莉正在做梦中，请勿打扰...");
+            } else {
+                // 唤醒逻辑 (【关键修改点】)
+                isSleeping = false;
+                stats.energy = 60; // 醒来恢复一部分体力
+                stats.hunger = Math.max(0, stats.hunger - 10); // 睡觉也会饿
+                
+                // 1. 切换回平时（清醒）的图片
+                img.src = 'LilyMouse.png'; 
+                
+                // 2. 移除睡觉时的 CSS 滤镜
+                img.classList.remove('sleeping'); 
+                
+                // 3. 恢复按钮和文字
+                document.getElementById('sleep-btn').innerText = "😴 去睡觉";
+                document.getElementById('sleep-btn').style.background = "#a1c4fd";
+                msg.innerText = "莉莉伸个大大的懒腰醒了！";
+            }
+        }
+        updateUI();
+        // 0.3秒后恢复头像动画
+        setTimeout(() => { if(!isSleeping) img.style.transform = ''; }, 300);
+    }
+
+    // 进入睡觉状态的通用函数
+    function startSleeping(text) {// ======================== 
+    // 进入睡觉状态的通用函数 (【关键修改点】)
+    // ======================== 
+    function startSleeping(text) {
+        isSleeping = true;
+        const img = document.getElementById('lily-img'); // 找到头像图片元素
+        
+        // 1. 切换到睡觉时的图片
+        img.src = 'LilySleeping.png'; 
+        
+        // 2. 加上睡觉时的 CSS 滤镜（变灰、倾斜）
+        img.classList.add('sleeping'); 
+        
+        // 3. 更新按钮和文字
+        document.getElementById('sleep-btn').innerText = "⏰ 唤醒莉莉";
+        document.getElementById('sleep-btn').style.background = "#4a90e2";
+        document.getElementById('message').innerText = text;
+    }
+
+    // 初始化界面
+    updateUI();
+</script>
 
 </body>
 </html>
