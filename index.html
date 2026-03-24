@@ -6,14 +6,28 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
         .container { text-align: center; background: rgba(255, 255, 255, 0.1); padding: 3rem; border-radius: 20px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-        h1 { font-size: 3rem; margin-bottom: 0.5rem; }
-        p { font-size: 1.2rem; opacity: 0.9; }
+
+        /* 新增：设置头像样式的 CSS */
+        .LilySleeping {
+            width: 150px;        /* 宽度 */
+            height: 150px;       /* 高度，设为一样实现正方形 */
+            border-radius: 50%; /* 关键：设为 50% 变为圆形 */
+            border: 4px solid white; /* 白色的边框 */
+            object-fit: cover;   /* 确保图片拉伸时不变形，而是裁剪 */
+            margin-bottom: 20px;  /* 和下方文字的间距 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 头像的阴影 */
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; margin-top: 0; } /* 稍微调整了字号和间距 */
+        p { font-size: 1.2rem; opacity: 0.9; margin: 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>你好，我是 [莉莉]</h1>
-        <p>🚀 这是我通过 GitHub Pages 发布的第一个网页！</p>
+        <img src="LilySleeping.png" alt="[你的名字] 的头像" class="LilySleeping">
+
+        <h1>你好，我是 莉莉</h1>
+        <p>🚀 欢迎来到我的个猫主页！</p>
     </div>
 </body>
 </html>
